@@ -1,0 +1,55 @@
+body {
+  background: #f8f8fa;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif;
+  color: #222;
+}
+.main-btn {
+  background: #e00;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 10px 22px;
+  font-size: 1.08rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 1px 8px rgba(224,0,0,0.12);
+  transition: background 0.2s;
+}
+.main-btn:hover {
+  background: #b00;
+}
+input, select, button {
+  font-family: inherit;
+  font-size: 1rem;
+}
+input[type="text"], input[type="password"], select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.form-wrap label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #444;
+}
+.form-wrap input, .form-wrap select {
+  margin-bottom: 12px;
+}
+h1, h2 {
+  font-family: inherit;
+  font-weight: 700;
+  color: #e00;
+}
+@media (max-width: 600px) {
+  .container {
+    padding: 9px 1px;
+    max-width: 97vw;
+  }
+  input, select {
+    font-size: 0.97rem;
+  }
+}

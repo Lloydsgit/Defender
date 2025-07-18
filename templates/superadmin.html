@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="margin-bottom:24px;">
+  <h2 style="color:#e00;">Superadmin Panel</h2>
+  <div style="font-size:1.05rem;color:#444;margin-bottom:16px;">
+    Welcome, Superadmin! Manage terminals, view transaction history, and monitor process flow.
+  </div>
+</div>
+<div class="admin-actions" style="display:grid;gap:12px;">
+  <a href="{{ url_for('history') }}"><button class="main-btn">View Transaction History</button></a>
+  <a href="{{ url_for('terminals') }}"><button class="main-btn">Manage Terminals</button></a>
+  <a href="{{ url_for('export_data') }}"><button class="main-btn">Export Data (CSV)</button></a>
+</div>
+<div style="margin-top:40px;color:#a0a;">
+  <strong>Process Flow:</strong>  
+  <ul style="font-size:0.97rem;">
+    <li>Real-time terminal status and transaction monitoring</li>
+    <li>Search, filter, and export transaction records</li>
+    <li>Operator password and security management</li>
+    <li>Language settings (future support)</li>
+  </ul>
+</div>
+{% endblock %}

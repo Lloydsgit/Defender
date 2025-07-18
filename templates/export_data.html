@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 style="color:#e00;">Export Data</h2>
+<p>Download transaction history and terminal data as CSV for your records.</p>
+<form method="post" action="{{ url_for('export_data') }}">
+  <button type="submit" class="main-btn">Export CSV</button>
+</form>
+{% if download_link %}
+  <div style="margin-top:18px;">
+    <a href="{{ download_link }}" style="color:#e00;">Download CSV</a>
+  </div>
+{% endif %}
+{% endblock %}

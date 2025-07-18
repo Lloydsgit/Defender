@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 style="color:#e00;">Reset Terminal Password</h2>
+<p>Terminal ID: <strong>{{ terminal_id }}</strong></p>
+<form method="post" class="form-wrap" style="max-width:340px;">
+  <label for="new_pw">New Password:</label>
+  <input type="password" id="new_pw" name="new_pw" required>
+  <button type="submit" class="main-btn">Reset Password</button>
+</form>
+{% endblock %}

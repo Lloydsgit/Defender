@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 style="color:#e00;margin-bottom:16px;">Transaction History</h2>
+<form method="get" style="margin-bottom:16px;display:flex;gap:8px;">
+  <input type="text" name="search" placeholder="Search Txn ID, Card, Amount" style="flex:1;">
+  <button type="submit" class="main-btn">Search</button>
+</form>
+<table style="width:100%;border-collapse:collapse;font-size:0.97rem;">
+  <thead>
+    <tr style="background:#f3f3f3;">
+      <th>Date</th>
+      <th>Txn ID</th>
+      <th>Amount</th>
+      <th>Status</th>
+      <th>Terminal</th>
+      <th>Card</th>
+      <th>Payout</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for txn in transactions %}
+    <tr style="border-bottom:1px solid #eee;">
+      <td>{{ txn.timestamp }}</td>
+      <td>{{ txn.txn_id }}</td>
+      <td>{{ txn.amount }}</td>
+      <td>
+        {% if txn.status == "Approved" %}
+          <span style="color:#0a0;">✅</span>
+        {% else %}
+          <span style="color:#e00;">❌</span>
+        {% endif %}
+        {{ txn.status }}
+      </td>
+      <td>{{ txn.terminal_id }}</td>
+      <td>****{{ txn.pan[-4:] }}</td>
+      <td>{{ txn.payout }}</td>
+      <td>
+        <a href="{{ url_for('receipt', txn_id=txn.txn_id) }}" style="color:#e00;">Receipt</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% if not transactions %}
+  <div style="margin-top:24px;color:#888;">No transactions found.</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,8 @@
+Flask>=3.1.1
+Werkzeug>=3.1.3
+bcrypt
+pyotp
+qrcode
+pillow
+web3
+twilio

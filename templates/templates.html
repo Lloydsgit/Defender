@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 style="color:#e00;">Terminal Management</h2>
+<table style="width:100%;margin-top:18px;border-collapse:collapse;">
+  <thead>
+    <tr style="background:#f3f3f3;">
+      <th>Terminal ID</th>
+      <th>Status</th>
+      <th>Last Active</th>
+      <th>Operator</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for t in terminals %}
+    <tr style="border-bottom:1px solid #eee;">
+      <td>{{ t.terminal_id }}</td>
+      <td>
+        {% if t.status == "online" %}
+          <span style="color:#0a0;">Online</span>
+        {% else %}
+          <span style="color:#e00;">Offline</span>
+        {% endif %}
+      </td>
+      <td>{{ t.last_active }}</td>
+      <td>{{ t.operator }}</td>
+      <td>
+        <a href="{{ url_for('reset_password', terminal_id=t.terminal_id) }}" style="color:#e00;">Reset Password</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% if not terminals %}
+  <div style="margin-top:20px;color:#888;">No terminals found.</div>
+{% endif %}
+{% endblock %}

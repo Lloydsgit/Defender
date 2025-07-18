@@ -1,55 +1,78 @@
 body {
-  background: #f8f8fa;
+  background: linear-gradient(120deg, #f8f8fa 0%, #ffeaea 100%);
   font-family: 'Inter', 'Segoe UI', 'Roboto', Arial, sans-serif;
   color: #222;
 }
-.main-btn {
-  background: #e00;
+.main-btn, .icon-btn {
+  background: linear-gradient(90deg, #e00 20%, #f44 80%);
   color: #fff;
   border: none;
-  border-radius: 7px;
-  padding: 10px 22px;
-  font-size: 1.08rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 1px 8px rgba(224,0,0,0.12);
-  transition: background 0.2s;
-}
-.main-btn:hover {
-  background: #b00;
-}
-input, select, button {
-  font-family: inherit;
-  font-size: 1rem;
-}
-input[type="text"], input[type="password"], select {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  margin-bottom: 12px;
-  width: 100%;
-  box-sizing: border-box;
-}
-.form-wrap label {
-  display: block;
-  font-weight: 500;
-  margin-bottom: 4px;
-  color: #444;
-}
-.form-wrap input, .form-wrap select {
-  margin-bottom: 12px;
-}
-h1, h2 {
-  font-family: inherit;
+  border-radius: 8px;
+  padding: 11px 24px;
+  font-size: 1.13rem;
   font-weight: 700;
-  color: #e00;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(224,0,0,0.15);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.08s;
+  margin-bottom: 4px;
 }
+.main-btn:hover, .icon-btn:hover {
+  background: linear-gradient(90deg, #ba0000 20%, #e00 80%);
+  box-shadow: 0 4px 18px rgba(224,0,0,0.25);
+  transform: translateY(-2px) scale(1.04);
+}
+.icon-btn {
+  padding: 8px 14px;
+  font-size: 1.1rem;
+  margin-left: 4px;
+}
+.table-card {
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  padding: 20px;
+  margin-bottom: 28px;
+  animation: fadeIn 0.6s;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(16px);}
+  to { opacity: 1; transform: none;}
+}
+th, td {
+  padding: 8px 10px;
+  text-align: left;
+}
+th {
+  background: #fff3f3;
+  color: #e00;
+  font-weight: 700;
+  border-bottom: 2px solid #ffeaea;
+}
+tr {
+  border-bottom: 1px solid #f3f3f3;
+  transition: background 0.14s;
+}
+tr:hover td {
+  background: #fff8f8;
+}
+.status-dot {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  margin-right: 6px;
+  box-shadow: 0 0 8px rgba(224,0,0,0.13);
+}
+.status-online { background: #0f0; }
+.status-offline { background: #e00; }
+.status-idle { background: #ff0; }
+.search-bar {
+  display: flex; gap: 12px; margin-bottom: 16px;
+}
+.search-bar input[type="text"] {
+  flex: 1; padding: 9px; border-radius: 8px; border: 1px solid #e8e8e8;
+}
+.search-bar .main-btn { min-width: 100px; }
 @media (max-width: 600px) {
-  .container {
-    padding: 9px 1px;
-    max-width: 97vw;
-  }
-  input, select {
-    font-size: 0.97rem;
-  }
+  .table-card { padding: 7px; }
+  .main-btn, .icon-btn { font-size: 1rem; padding: 9px 10px;}
 }

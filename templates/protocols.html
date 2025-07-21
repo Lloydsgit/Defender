@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Select Transaction Protocol</h3>
+<form method="POST" action="{{ url_for('protocol') }}" class="form-wrap">
+    <label for="protocol">Choose a protocol:</label><br>
+    <select name="protocol" required>
+        <optgroup label="Online Protocols">
+            <option value="101.1">Online Sale 101.1 – 4-digit Auth Code</option>
+            <option value="101.2">Online Purchase 101.2 – 6-digit Auth Code</option>
+            <option value="101.3">Online Sale 101.3 – 6-digit Auth Code</option>
+            <option value="101.4">Online Purchase 101.4 – 4 & 6-digit Auth Code</option>
+            <option value="101.5">Online Sale 101.5 – Auth Only</option>
+            <option value="101.6">Online Sale 101.6 – Pre-Auth [1:1]</option>
+            <option value="101.7">Online Forced Sale 101.7 – 4-digit Auth Code</option>
+            <option value="101.8">Online Sale Pinless 101.8</option>
+            <option value="201.1">Online One-Step Completion 201.1 – 6-digit Auth Code</option>
+        </optgroup>
+        <optgroup label="Offline Protocols">
+            <option value="201.2">Offline Forced Sale 201.2 – 6-digit Auth Code</option>
+            <option value="201.3">Offline Sale 201.3 – 6-digit Auth Code</option>
+            <option value="201.4">Online Ticket/Phone 201.4 – 6-digit Auth Code</option>
+            <option value="201.5">Online Pre-Auth & Completion (1:More) 201.5</option>
+        </optgroup>
+    </select><br><br>
+    <button type="submit">Continue</button>
+</form>
+{% endblock %}

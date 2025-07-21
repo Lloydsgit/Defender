@@ -124,8 +124,13 @@ def change_password():
 @app.route('/protocol', methods=['GET', 'POST'])
 @login_required
 def protocol():
-    # ... unchanged ...
-    pass
+    protocols = ["POS-101.1", "POS-101.4", "POS-101.6", "POS-101.7", "POS-101.8", "POS-201.1", "POS-201.3", "POS-201.5"]
+    if request.method == 'POST':
+        selected = request.form.get('protocol')
+        session['protocol'] = selected
+        return redirect(url_for('amount'))
+    # Make sure your template is named 'protocols.html'
+    return render_template('protocols.html', protocols=protocols)
 
 @app.route('/amount', methods=['GET', 'POST'])
 @login_required
@@ -164,15 +169,28 @@ def payout():
 @app.route('/card', methods=['GET', 'POST'])
 @login_required
 def card():
-    # Support drag-and-drop, MM/YY separator, etc. (handled in template)
-    # ... unchanged core logic ...
-    pass
+    if request.method == 'POST':
+        pan = request.form.get('pan')
+        expiry = request.form.get('expiry')
+        cvv = request.form.get('cvv')
+        session['pan'] = pan
+        session['expiry'] = expiry
+        session['cvv'] = cvv
+        return redirect(url_for('auth'))
+    return render_template('card.html'
 
 @app.route('/auth', methods=['GET', 'POST'])
 @login_required
 def auth():
-    # ... unchanged core logic ...
-    pass
+    if request.method == 'POST':
+        code = request.form.get('auth_code')
+        session['auth_code'] = code
+        # Here you would do your real validation
+        # For now, always succeed for demo
+        session['txn_id'] = f"TXN{random.randint(100000,999999)}"
+        session['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        return redirect(url_for('success'))
+    return render_template('auth.html')
 
 @app.route('/success')
 @login_required

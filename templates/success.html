@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Transaction Successful!</h2>
+<p>Transaction ID: {{ txn_id }}</p>
+<p>Amount: {{ amount }}</p>
+<p>ARN: {{ arn }}</p>
+<p>Timestamp: {{ timestamp }}</p>
+<a href="{{ url_for('transactions') }}">View Transaction History</a>
+<a href="{{ url_for('logout') }}">Logout</a>
+{% endblock %}

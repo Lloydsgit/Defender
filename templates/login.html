@@ -1,24 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-  <div class="login-container" style="text-align:center;">
-    <h2 style="color:#e00; margin-bottom:10px;">Admin Login</h2>
-    <form method="POST" class="form-wrap" style="margin:auto; max-width:320px;">
-      <label for="username">User ID:</label>
-      <input type="text" id="username" name="username" required value="admin">
-
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" required autocomplete="current-password">
-
-      <button type="submit" style="background:#e00; color:#fff;">Login</button>
-    </form>
-    <div style="margin-top:18px;">
-      <a href="{{ url_for('forgot_password') }}"><button type="button" style="background:#fff; color:#e00; border:1px solid #e00; margin-right:7px;">Forgot Password</button></a>
-      <a href="{{ url_for('change_password') }}"><button type="button" style="background:#fff; color:#e00; border:1px solid #e00;">Change Password</button></a>
-    </div>
-    <div style="margin-top:24px;">
-      <span style="font-size:0.95rem; color:#888;">
-        Superadmin? <a href="{{ url_for('superadmin') }}" style="color:#e00;">Transaction/Process Flow</a>
-      </span>
-    </div>
-  </div>
+<form method="POST" action="{{ url_for('login') }}" class="form-wrap">
+    <label>Username:</label>
+    <input type="text" name="username" value="{{ username }}" required>
+    <label>Password:</label>
+    <input type="password" name="password" required>
+    <button type="submit">Login</button>
+    <a href="{{ url_for('forgot_password') }}">Forgot password?</a>
+</form>
 {% endblock %}

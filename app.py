@@ -122,8 +122,30 @@ def change_password():
 @app.route('/protocol', methods=['GET', 'POST'])
 @login_required
 def protocol():
-    # ... unchanged ...
-    pass
+    protocol_options = {
+        "101.1": "Online Sale 101.1 – 4-digit Auth Code",
+        "101.2": "Online Purchase 101.2 – 6-digit Auth Code",
+        "101.3": "Online Sale 101.3 – 6-digit Auth Code",
+        "101.4": "Online Purchase 101.4 – 4 & 6-digit Auth Code",
+        "101.5": "Online Sale 101.5 – Auth Only",
+        "101.6": "Online Sale 101.6 – Pre-Auth [1:1]",
+        "101.7": "Online Forced Sale 101.7 – 4-digit Auth Code",
+        "101.8": "Online Sale Pinless 101.8",
+        "201.1": "Online One-Step Completion 201.1 – 6-digit Auth Code",
+        "201.2": "Offline Forced Sale 201.2 – 6-digit Auth Code",
+        "201.3": "Offline Sale 201.3 – 6-digit Auth Code",
+        "201.4": "Online Ticket/Phone 201.4 – 6-digit Auth Code",
+        "201.5": "Online Pre-Auth & Completion (1:More) 201.5"
+    }
+
+    if request.method == 'POST':
+        selected = request.form.get('protocol')
+        if selected in protocol_options:
+            session['protocol'] = selected
+            return redirect(url_for('amount'))
+        flash("Please select a valid protocol.")
+
+    return render_template('protocol.html', protocols=protocol_options.keys())
 
 @app.route('/amount', methods=['GET', 'POST'])
 @login_required

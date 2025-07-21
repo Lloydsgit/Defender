@@ -191,8 +191,37 @@ def card():
 @app.route('/auth', methods=['GET', 'POST'])
 @login_required
 def auth():
-    # ... unchanged core logic ...
-    pass
+    if request.method == 'POST':
+        auth_code = request.form.get('auth')
+        expected_length = 6  # default
+
+        protocol = session.get('protocol')
+        if protocol in ["101.1", "101.7"]:  # 4-digit
+            expected_length = 4
+        elif protocol in ["101.4"]:  # both accepted?
+            expected_length = [4, 6]
+        elif protocol in ["101.8"]:  # pinless? maybe skip auth?
+            expected_length = 0
+        # ...add more if needed
+
+        # Validate input
+        if expected_length == 0:
+            return redirect(url_for('success'))  # auto-success?
+        elif isinstance(expected_length, list):
+            if len(auth_code) not in expected_length:
+                return render_template("auth.html", warning="Invalid code length for this protocol.")
+        else:
+            if len(auth_code) != expected_length:
+                return render_template("auth.html", warning=f"Auth code must be {expected_length} digits.")
+
+        # Proceed
+        session['txn_id'] = f"TXN{random.randint(100000,999999)}"
+        session['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        session['arn'] = f"ARN{random.randint(1000000,9999999)}"
+        session['pan'] = "**** **** **** 1234"
+        return redirect(url_for('success'))
+
+    return render_template('auth.html')
 
 @app.route('/success')
 @login_required

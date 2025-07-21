@@ -2,6 +2,7 @@ services:
   - type: web
     name: blackrock-pay
     env: python
+    pythonVersion: 3.11
     buildCommand: |
       apt-get update
       apt-get install -y build-essential libffi-dev libjpeg-dev zlib1g-dev gcc

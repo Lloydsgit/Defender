@@ -1,4 +1,4 @@
-/* Reset + Base */
+/* Global Reset & Base */
 * {
     margin: 0;
     padding: 0;
@@ -7,99 +7,38 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(to bottom right, #0d1b2a, #1b263b);
-    color: #ffffff;
+    background: linear-gradient(145deg, #0f2027, #203a43, #2c5364);
+    background-attachment: fixed;
     min-height: 100vh;
-    padding: 20px;
     display: flex;
-    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: #fff;
 }
 
-/* Container */
+/* Glass Container */
 .container {
-    background-color: #1e2a38;
-    border: 1px solid #3e5c76;
-    border-radius: 10px;
-    padding: 30px;
-    max-width: 480px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 40px;
     width: 100%;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+    max-width: 500px;
+    animation: fadeIn 0.8s ease-out;
 }
 
-/* Header */
+/* Headings */
 h1, h2, h3 {
     text-align: center;
-    margin-bottom: 20px;
-    color: #f5c518;
+    margin-bottom: 25px;
+    color: #f5d142;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
 }
 
 /* Forms */
 form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-label {
-    font-weight: 600;
-    margin-bottom: 5px;
-}
-
-input[type="text"],
-input[type="password"],
-input[type="number"],
-input[type="email"],
-select {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background-color: #f7f7f7;
-    color: #333;
-    font-size: 16px;
-}
-
-button {
-    padding: 12px;
-    border: none;
-    background-color: #f5c518;
-    color: #000;
-    font-weight: bold;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-button:hover {
-    background-color: #e0b713;
-}
-
-/* Alerts */
-.flash {
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #ff4444;
-    color: #fff;
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-/* Links */
-a {
-    color: #f5c518;
-    text-decoration: none;
-}
-a:hover {
-    text-decoration: underline;
-}
-
-/* Responsive */
-@media (max-width: 500px) {
-    .container {
-        padding: 20px;
-    }
-
-    input, button {
-        font-size: 14px;
-    }
-}
+    display:

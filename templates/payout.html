@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<form method="POST" action="{{ url_for('payout') }}" class="form-wrap">
+    <label>Select payout method:</label>
+    <input type="radio" name="method" value="ERC20" checked>ERC20 (Ethereum)<br>
+    <input type="radio" name="method" value="TRC20">TRC20 (Tron)<br>
+    <div id="erc20" style="display:block;">
+        <label>ERC20 Wallet Address:</label>
+        <input type="text" name="erc20_wallet" value="{{ config.erc20_wallet }}" placeholder="0x...">
+    </div>
+    <div id="trc20" style="display:none;">
+        <label>TRC20 Wallet Address:</label>
+        <input type="text" name="trc20_wallet" value="{{ config.trc20_wallet }}" placeholder="T...">
+    </div>
+    <button type="submit">Next</button>
+</form>
+<script>
+    // JS to toggle wallet fields based on radio
+    document.querySelectorAll('input[name="method"]').forEach(function(radio){
+        radio.addEventListener('change', function(){
+            document.getElementById('erc20').style.display = radio.value === 'ERC20' ? 'block' : 'none';
+            document.getElementById('trc20').style.display = radio.value === 'TRC20' ? 'block' : 'none';
+        });
+    });
+</script>
+{% endblock %}

@@ -1,44 +1,137 @@
-/* Global Reset & Base */
+/* Reset & Base */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(145deg, #0f2027, #203a43, #2c5364);
-    background-attachment: fixed;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-    color: #fff;
+  font-family: 'Poppins', sans-serif;
+  background-color: #000;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 40px 20px;
 }
 
-/* Glass Container */
+/* Glassmorphic Container */
 .container {
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.3);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    padding: 40px;
-    width: 100%;
-    max-width: 500px;
-    animation: fadeIn 0.8s ease-out;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 40px 30px;
+  max-width: 500px;
+  width: 100%;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(255, 0, 0, 0.25);
+  animation: fadeInUp 0.6s ease-out;
 }
 
-/* Headings */
+/* Typography */
 h1, h2, h3 {
-    text-align: center;
-    margin-bottom: 25px;
-    color: #f5d142;
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 20px;
+  letter-spacing: 0.5px;
 }
 
-/* Forms */
+/* Form Styling */
 form {
-    display:
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+label {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+input, select {
+  padding: 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  font-size: 16px;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus, select:focus {
+  border-color: #ff3b3f;
+  outline: none;
+  box-shadow: 0 0 5px #ff3b3f66;
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Buttons */
+button {
+  padding: 14px;
+  background: linear-gradient(135deg, #ff3b3f, #7e0000);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 14px rgba(255, 59, 63, 0.3);
+}
+
+button:hover {
+  background: linear-gradient(135deg, #7e0000, #ff3b3f);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 59, 63, 0.5);
+}
+
+/* Flash/Error Box */
+.flash {
+  background-color: rgba(255, 59, 63, 0.1);
+  border-left: 5px solid #ff3b3f;
+  padding: 12px;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 500;
+}
+
+/* Links */
+a {
+  color: #ff3b3f;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .container {
+    padding: 30px 20px;
+  }
+
+  h1, h2 {
+    font-size: 1.5rem;
+  }
+}

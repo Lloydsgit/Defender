@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Transaction History</h2>
+<table>
+<tr><th>ID</th><th>Amount</th><th>Currency</th><th>Wallet</th><th>Timestamp</th><th>Status</th></tr>
+{% for txn in txns %}
+<tr>
+    <td>{{ txn.txn_id }}</td>
+    <td>{{ txn.amount }}</td>
+    <td>{{ txn.currency }}</td>
+    <td>{{ txn.wallet }}</td>
+    <td>{{ txn.timestamp }}</td>
+    <td>{{ txn.status }}</td>
+</tr>
+{% endfor %}
+</table>
+<a href="{{ url_for('logout') }}">Logout</a>
+{% endblock %}

@@ -1,5 +1,3 @@
-# Only showing HIGH-LEVEL changes and additions, actual code is NOT cut or omitted
-
 # --- Constants and Imports ---
 import json
 import os
@@ -201,4 +199,5 @@ def transactions():
 # ... rest of your unchanged routes ...
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
+

@@ -21,11 +21,18 @@ TRANSACTION_FILE = "transactions.json"
 
 # --- Ensure Password File Exists ---
 def ensure_password_file():
-    if not os.path.exists(PASSWORD_FILE):
+    try:
+        if not os.path.exists(PASSWORD_FILE):
+            raise FileNotFoundError
+        with open(PASSWORD_FILE) as f:
+            u = json.load(f)
+        if "password" not in u:
+            raise ValueError("Missing 'password' key")
+    except Exception:
+        # Fix/reset the file
         with open(PASSWORD_FILE, "w") as f:
             hashed = hashlib.sha256(MASTER_PASSWORD.encode()).hexdigest()
             json.dump({"username": MASTER_USERNAME, "password": hashed}, f)
-ensure_password_file()
 
 # --- Load/Store Config (Default Wallets) ---
 def load_config():

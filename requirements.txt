@@ -7,5 +7,5 @@ pillow
 web3
 twilio
 pycryptodome
-iso8583
+pyiso8583
 requests

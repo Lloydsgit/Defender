@@ -177,7 +177,7 @@ def card():
         session['expiry'] = expiry
         session['cvv'] = cvv
         return redirect(url_for('auth'))
-    return render_template('card.html'
+    return render_template('card.html')
 
 @app.route('/auth', methods=['GET', 'POST'])
 @login_required

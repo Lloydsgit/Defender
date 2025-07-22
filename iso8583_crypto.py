@@ -1,10 +1,42 @@
 import os
 import json
 import decimal
+import socket
+from datetime import datetime
 from web3 import Web3
 from tronpy import Tron
 from tronpy.keys import PrivateKey
+from iso8583 import iso8583
 
+# -------------------------
+# ISO8583 send logic
+# -------------------------
+def send_iso8583_transaction(card_data, host='127.0.0.1', port=5001):
+    """Sends an ISO8583 transaction to a specified TCP server"""
+    iso = iso8583.ISO8583()
+    iso.setMTI('0200')
+    iso.setBit(2, card_data.get('pan', '4000000000000002'))  # PAN
+    iso.setBit(3, '000000')  # Processing Code
+    iso.setBit(4, str(card_data.get('amount', '000000010000')).zfill(12))  # Amount
+    iso.setBit(7, datetime.utcnow().strftime('%m%d%H%M%S'))  # Transmission datetime
+    iso.setBit(11, str(card_data.get('stan', random.randint(100000,999999))))  # STAN
+    iso.setBit(12, datetime.utcnow().strftime('%H%M%S'))  # Local time
+    iso.setBit(13, datetime.utcnow().strftime('%m%d'))  # Local date
+    iso.setBit(41, card_data.get('terminal_id', 'TERMID01'))  # Terminal ID
+    iso.setBit(49, card_data.get('currency', '840'))  # Currency
+
+    message = iso.getNetworkISO()
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.connect((host, port))
+        sock.send(message)
+        response = sock.recv(4096)
+
+    return response
+
+# -------------------------
+# Load config
+# -------------------------
 def load_config():
     config = {
         "ENV": os.getenv("ENV", "testnet"),  # testnet or mainnet
@@ -18,6 +50,9 @@ def load_config():
 
 CONFIG = load_config()
 
+# -------------------------
+# ERC20 ABI
+# -------------------------
 def erc20_abi():
     return json.loads("""[
         {
@@ -43,7 +78,9 @@ def erc20_abi():
         }
     ]""")
 
+# -------------------------
 # ERC20 payout logic
+# -------------------------
 def send_erc20_payout(to_address, amount):
     web3 = Web3(Web3.HTTPProvider(CONFIG["ETHEREUM_RPC"]))
     if not web3.is_connected():
@@ -67,7 +104,9 @@ def send_erc20_payout(to_address, amount):
     tx_hash = web3.eth.send_raw_transaction(signed_tx.rawTransaction)
     return tx_hash.hex()
 
+# -------------------------
 # TRC20 payout logic
+# -------------------------
 def send_trc20_payout(to_address, amount):
     client = Tron(network='nile' if CONFIG["ENV"] == "testnet" else 'mainnet')
     priv_key = PrivateKey(bytes.fromhex(CONFIG["TRON_PRIVATE_KEY"]))

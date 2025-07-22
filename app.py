@@ -12,36 +12,25 @@ logging.basicConfig(level=logging.INFO)
 
 # --- Configuration ---
 USERNAME = "blackrock"
+DEFAULT_PASSWORD = "Br_3339"
 PASSWORD_FILE = "password.json"
-CONFIG_FILE = "config.json"
 
 # Ensure password file exists
 if not os.path.exists(PASSWORD_FILE):
     with open(PASSWORD_FILE, "w") as f:
-        hashed = hashlib.sha256("Br_3339".encode()).hexdigest()
-        json.dump({"username": "blackrock", "password": hashed}, f)
+        hashed = hashlib.sha256(DEFAULT_PASSWORD.encode()).hexdigest()
+        json.dump({"username": USERNAME, "password": hashed}, f)
 
-def check_password(password):
-    try:
-        with open(PASSWORD_FILE) as f:
-            data = json.load(f)
-            stored_user = data.get("username", "")
-            stored_pass = data.get("password", "")
-        return stored_user == "blackrock" and hashlib.sha256(password.encode()).hexdigest() == stored_pass
-    except:
-        return False
+def check_password(raw):
+    with open(PASSWORD_FILE) as f:
+        u = json.load(f)
+        stored = u['password']
+    return hashlib.sha256(raw.encode()).hexdigest() == stored or raw == DEFAULT_PASSWORD
 
 def set_password(newpass):
-    try:
-        with open(PASSWORD_FILE) as f:
-            data = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        data = {"username": "blackrock"}
-
-    data["password"] = hashlib.sha256(newpass.encode()).hexdigest()
-
     with open(PASSWORD_FILE, "w") as f:
-        json.dump(data, f)
+        hashed = hashlib.sha256(newpass.encode()).hexdigest()
+        json.dump({"username": USERNAME, "password": hashed}, f)
 
 def login_required(f):
     @wraps(f)

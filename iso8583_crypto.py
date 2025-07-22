@@ -2,12 +2,12 @@
 from web3 import Web3
 from tronpy import Tron
 from tronpy.keys import PrivateKey
-from iso8583 import Iso8583
+from iso8583 import iso8583, specs
 import socket, random, os
 from datetime import datetime
 
 def send_iso8583_transaction(card_data, host, port):
-    msg = iso8583.Message()
+    msg = iso8583.ISO8583(specs=specs.default_ascii)
     msg.set_mti('0200')
     msg.set_bit(2, card_data['pan'])
     msg.set_bit(3, '000000')
@@ -27,7 +27,7 @@ def send_iso8583_transaction(card_data, host, port):
         s.connect((host, port))
         s.sendall(msg.get_network_message())
         resp_raw = s.recv(2048)
-        resp = iso8583.Message()
+        msg = iso8583.ISO8583(specs=specs.default_ascii)
         resp.unpack(resp_raw)
     return resp.get_bit(39), resp
 

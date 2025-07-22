@@ -23,9 +23,11 @@ if not os.path.exists(PASSWORD_FILE):
 
 def check_password(password):
     try:
-        with open('password.json') as f:
-            stored = json.load(f).get("password", "")
-        return hashlib.sha256(password.encode()).hexdigest() == stored
+        with open(PASSWORD_FILE) as f:
+            data = json.load(f)
+            stored_user = data.get("username", "")
+            stored_pass = data.get("password", "")
+        return stored_user == "blackrock" and hashlib.sha256(password.encode()).hexdigest() == stored_pass
     except:
         return False
 

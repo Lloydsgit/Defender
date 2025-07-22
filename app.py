@@ -62,14 +62,19 @@ DUMMY_CARDS = {
 }
 
 PROTOCOLS = {
-    "POS Terminal -101.1 (4-digit approval)": 4,
-    "POS Terminal -101.4 (6-digit approval)": 6,
-    "POS Terminal -101.6 (Pre-authorization)": 6,
-    "POS Terminal -101.7 (4-digit approval)": 4,
-    "POS Terminal -101.8 (PIN-LESS transaction)": 4,
-    "POS Terminal -201.1 (6-digit approval)": 6,
-    "POS Terminal -201.3 (6-digit approval)": 6,
-    "POS Terminal -201.5 (6-digit approval)": 6
+    "101.1": 4,
+    "101.2": 6,
+    "101.3": 6,
+    "101.4": 6,  # You can handle both 4 and 6 as needed
+    "101.5": 0,  # Auth only – no approval code required?
+    "101.6": 6,
+    "101.7": 4,
+    "101.8": 4,
+    "201.1": 6,
+    "201.2": 6,
+    "201.3": 6,
+    "201.4": 6,
+    "201.5": 6  # Or customize depending on your logic
 }
 
 FIELD_39_RESPONSES = {

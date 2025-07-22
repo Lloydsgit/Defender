@@ -1,11 +1,26 @@
 {% extends "base.html" %}
 {% block content %}
-<form method="POST" action="{{ url_for('login') }}" class="form-wrap">
-    <label>Username:</label>
-    <input type="text" name="username" value="{{ username }}" required>
-    <label>Password:</label>
-    <input type="password" name="password" required>
-    <button type="submit">Login</button>
-    <a href="{{ url_for('forgot_password') }}">Forgot password?</a>
-</form>
+<div class="center-screen">
+  <div class="card">
+    <div class="flex items-center space-x-3 mb-6">
+      <div class="logo-icon">
+        <span>&gt;_</span>
+      </div>
+      <div>
+        <h1 class="title">Black Rock</h1>
+        <p class="subtitle -mt-1">Terminal Login</p>
+      </div>
+    </div>
+    <p class="mb-6 text-sm text-muted-foreground">Sign in to operate the payment terminal.</p>
+    <form method="post">
+      <label class="label" for="username">Username</label>
+      <input class="input mb-4" id="username" name="username" placeholder="Enter username" required />
+
+      <label class="label" for="password">Password</label>
+      <input class="input mb-6" id="password" name="password" type="password" placeholder="••••••••" required />
+
+      <button type="submit" class="btn">Sign In</button>
+    </form>
+  </div>
+</div>
 {% endblock %}

@@ -251,12 +251,12 @@ def protocol():
     if request.method == 'POST':
         selected = request.form.get('protocol', '').strip()
         if selected in PROTOCOLS:
-            pass
+            session['protocol'] = selected
+            session['code_length'] = PROTOCOLS[selected]
+            print(f"DEBUG: Selected protocol = {selected}, Code length = {session['code_length']}")
+            return redirect(url_for('amount'))
         else:
             return redirect(url_for('rejected', code="92", reason=FIELD_39_RESPONSES["92"]))
-        session['protocol'] = selected
-        session['code_length'] = PROTOCOLS[selected]
-        return redirect(url_for('amount'))
     return render_template('protocols.html', protocols=PROTOCOLS.keys())
 
 @app.route('/amount', methods=['GET', 'POST'])

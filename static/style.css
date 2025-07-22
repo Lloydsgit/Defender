@@ -1,62 +1,100 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@layer base {
-  :root {
-    --background: 0 0% 13.3%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 4.3%;
-    --card-foreground: 0 0% 98%;
-    --primary: 0 95% 55%;
-    --primary-foreground: 0 0% 100%;
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 0 95% 55%;
-    --radius: 0.5rem;
-  }
-
-  body {
-    @apply bg-background text-foreground font-sans antialiased;
-  }
-
-  * {
-    @apply border-border;
-  }
-
-  input, button, select {
-    @apply focus:outline-none;
-  }
+/* Base layout */
+body.pos-body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Orbitron', sans-serif;
+    background: linear-gradient(135deg, #0d0d0d, #1a0000);
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
-@layer components {
-  .input {
-    @apply w-full bg-input text-foreground px-4 py-2 rounded-md border border-border;
-  }
-
-  .btn {
-    @apply w-full text-white font-semibold py-2 px-4 rounded-md bg-primary hover:opacity-90 transition;
-  }
-
-  .label {
-    @apply text-sm font-semibold mb-1 text-foreground;
-  }
-
-  .title {
-    @apply text-xl font-bold mb-1;
-  }
-
-  .subtitle {
-    @apply text-sm text-muted-foreground mb-4;
-  }
-
-  .flash {
-    @apply bg-red-100 text-red-600 rounded-md p-3 text-sm text-center mb-4;
-  }
+/* Neon card container */
+.pos-container {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    border: 2px solid rgba(255, 0, 0, 0.2);
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+    border-radius: 20px;
+    padding: 40px;
+    width: 90%;
+    max-width: 500px;
+    animation: flicker 2s infinite alternate;
 }
 
-@layer utilities {
-  .center-screen {
-    @apply flex items-center justify-center min-h-screen;
-  }
+/* Title styling */
+.pos-title {
+    font-size: 2em;
+    color: #ff0000;
+    text-shadow: 0 0 12px #ff0000aa;
+    text-align: center;
+    margin-bottom: 30px;
+    letter-spacing: 2px;
+}
+
+/* Form elements */
+.pos-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.pos-form input {
+    padding: 12px 15px;
+    font-size: 1em;
+    background-color: #111;
+    color: white;
+    border: 2px solid #ff2a2a;
+    border-radius: 12px;
+    outline: none;
+    transition: 0.3s ease;
+}
+
+.pos-form input:focus {
+    box-shadow: 0 0 12px #ff2a2a;
+    border-color: #fff;
+}
+
+/* Button */
+.pos-button {
+    background: linear-gradient(145deg, #ff0000, #cc0000);
+    border: none;
+    padding: 15px;
+    border-radius: 12px;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 0 12px #ff0000a0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pos-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 18px #ff0000c0;
+}
+
+/* Footer */
+.pos-footer {
+    text-align: center;
+    margin-top: 30px;
+    color: #ccc;
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
+/* Flicker animation for cyberpunk feel */
+@keyframes flicker {
+    0% { box-shadow: 0 0 10px rgba(255, 0, 0, 0.2); }
+    100% { box-shadow: 0 0 25px rgba(255, 0, 0, 0.8); }
+}
+
+/* Responsive */
+@media screen and (max-width: 500px) {
+    .pos-container {
+        padding: 30px 20px;
+        border-radius: 12px;
+    }
 }

@@ -32,9 +32,16 @@ def check_password(password):
         return False
 
 def set_password(newpass):
+    try:
+        with open(PASSWORD_FILE) as f:
+            data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        data = {"username": "blackrock"}
+
+    data["password"] = hashlib.sha256(newpass.encode()).hexdigest()
+
     with open(PASSWORD_FILE, "w") as f:
-        hashed = hashlib.sha256(newpass.encode()).hexdigest()
-        json.dump({"password": hashed}, f)
+        json.dump(data, f)
 
 def login_required(f):
     @wraps(f)

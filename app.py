@@ -246,6 +246,7 @@ def protocol():
     if request.method == 'POST':
         selected = request.form.get('protocol', '').strip()
         if selected in PROTOCOLS:
+            pass
         else:
             return redirect(url_for('rejected', code="92", reason=FIELD_39_RESPONSES["92"]))
         session['protocol'] = selected

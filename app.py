@@ -308,8 +308,10 @@ def auth():
 
     if request.method == 'POST':
         code = request.form.get('auth_code', '').strip()
+        print(f"Received code: {code}, Length: {len(code)}, Expected: {expected_length}")
+
         if not code or len(code) != expected_length:
-            flash(f"Authorization code must be {expected_length} digits.")
+            flash(f"Authorization code must be exactly {expected_length} digits.")
             return redirect(url_for('auth'))
 
         session['auth_code'] = code
@@ -318,7 +320,7 @@ def auth():
         return redirect(url_for('success'))
 
     return render_template('auth.html', code_length=expected_length)
-
+    
 @app.route('/success')
 @login_required
 def success():

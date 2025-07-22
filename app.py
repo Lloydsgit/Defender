@@ -308,7 +308,7 @@ def auth():
 
     if request.method == 'POST':
         code = request.form.get('auth_code', '').strip()
-        print(f"Received code: {code}, Length: {len(code)}, Expected: {expected_length}")
+        print(f"DEBUG: Raw code: '{code}' | Length: {len(code)} | Expected: {expected_length}")
 
         if not code or len(code) != expected_length:
             flash(f"Authorization code must be exactly {expected_length} digits.")

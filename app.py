@@ -301,21 +301,16 @@ def card():
         return redirect(url_for('auth'))
     return render_template('card.html')
 
-@app.route('/auth', methods=['GET', 'POST'])
+@app.route('/protocol', methods=['GET', 'POST'])
 @login_required
-def auth():
+def protocol():
     if request.method == 'POST':
-        code = request.form.get('auth_code')
-        expected_length = session.get('code_length', 4)
-        if not code or len(code) != expected_length:
-            flash(f"Authorization code must be {expected_length} digits.")
-            return redirect(url_for('auth'))
-        session['auth_code'] = code
-        # Simulate transaction ID and timestamp
-        session['txn_id'] = f"TXN{random.randint(100000, 999999)}"
-        session['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        return redirect(url_for('success'))
-    return render_template('auth.html', code_length=session.get('code_length', 4))
+        selected_protocol = request.form.get('protocol')
+        code_length = PROTOCOLS.get(selected_protocol, 4)
+        session['selected_protocol'] = selected_protocol
+        session['code_length'] = code_length  # ✅ This is critical
+        return redirect(url_for('auth'))
+    return render_template('protocol.html')
 
 @app.route('/success')
 @login_required

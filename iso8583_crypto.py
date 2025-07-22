@@ -14,26 +14,30 @@ from pyiso8583.specs import default as spec_default
 # -------------------------
 def send_iso8583_transaction(card_data, host='127.0.0.1', port=5001):
     """Sends an ISO8583 transaction to a specified TCP server"""
-    iso = Iso8583()
-    iso.setMTI('0200')
-    iso.setBit(2, card_data.get('pan', '4000000000000002'))  # PAN
-    iso.setBit(3, '000000')  # Processing Code
-    iso.setBit(4, str(card_data.get('amount', '000000010000')).zfill(12))  # Amount
-    iso.setBit(7, datetime.utcnow().strftime('%m%d%H%M%S'))  # Transmission datetime
-    iso.setBit(11, str(card_data.get('stan', random.randint(100000,999999))))  # STAN
-    iso.setBit(12, datetime.utcnow().strftime('%H%M%S'))  # Local time
-    iso.setBit(13, datetime.utcnow().strftime('%m%d'))  # Local date
-    iso.setBit(41, card_data.get('terminal_id', 'TERMID01'))  # Terminal ID
-    iso.setBit(49, card_data.get('currency', '840'))  # Currency
+    msg = iso8583.ISO8583(spec=spec_default)
+    msg.set_mti('0200')
+    msg.set_bit(2, card_data.get('pan', '4000000000000002'))  # PAN
+    msg.set_bit(3, '000000')  # Processing Code
+    msg.set_bit(4, str(card_data.get('amount', '10000')).zfill(12))  # Amount
+    msg.set_bit(7, datetime.utcnow().strftime('%m%d%H%M%S'))  # Transmission datetime
+    msg.set_bit(11, str(card_data.get('stan', '123456')).zfill(6))  # STAN (System Trace Audit Number)
+    msg.set_bit(12, datetime.utcnow().strftime('%H%M%S'))  # Local time
+    msg.set_bit(13, datetime.utcnow().strftime('%m%d'))  # Local date
+    msg.set_bit(41, card_data.get('terminal_id', 'TERMID01'))  # Terminal ID
+    msg.set_bit(49, card_data.get('currency', '840'))  # Currency (USD)
 
-    message = iso.getNetworkISO()
+    msg_bytes, _ = msg.pack()
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.connect((host, port))
-        sock.send(message)
+        sock.sendall(msg_bytes)
         response = sock.recv(4096)
 
-    return response
+    resp_msg = iso8583.ISO8583(spec=spec_default)
+    resp_msg.unpack(response)
+    # Return Response Code (bit 39) and full message object
+    return resp_msg.get_bit(39), resp_msg
+
 
 # -------------------------
 # Load config
@@ -49,7 +53,9 @@ def load_config():
     }
     return config
 
+
 CONFIG = load_config()
+
 
 # -------------------------
 # ERC20 ABI
@@ -79,6 +85,7 @@ def erc20_abi():
         }
     ]""")
 
+
 # -------------------------
 # ERC20 payout logic
 # -------------------------
@@ -104,6 +111,7 @@ def send_erc20_payout(to_address, amount):
     signed_tx = from_account.sign_transaction(tx)
     tx_hash = web3.eth.send_raw_transaction(signed_tx.rawTransaction)
     return tx_hash.hex()
+
 
 # -------------------------
 # TRC20 payout logic

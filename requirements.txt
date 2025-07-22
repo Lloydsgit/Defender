@@ -5,6 +5,7 @@ pyotp
 qrcode
 pillow
 web3
+tronpy
 twilio
 pycryptodome
 pyiso8583

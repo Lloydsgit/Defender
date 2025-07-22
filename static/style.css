@@ -4,96 +4,63 @@
 
 @layer base {
   :root {
-    --background: 0 0% 13.3%; /* #222222 */
-    --foreground: 0 0% 98%;
-    --card: 0 0% 4.3%; /* #0B0B0B */
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 4.3%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 95% 55%; /* A more vibrant red */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 18%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 18%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 95% 55%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 72.2% 50.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 0 95% 55%;
-    --radius: 0.5rem;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-  }
-
-  .dark {
     --background: 0 0% 13.3%;
     --foreground: 0 0% 98%;
     --card: 0 0% 4.3%;
     --card-foreground: 0 0% 98%;
-    --popover: 0 0% 4.3%;
-    --popover-foreground: 0 0% 98%;
     --primary: 0 95% 55%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 18%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 18%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 95% 55%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 72.2% 50.6%;
-    --destructive-foreground: 0 0% 98%;
     --border: 0 0% 20%;
     --input: 0 0% 20%;
     --ring: 0 95% 55%;
+    --radius: 0.5rem;
   }
-}
 
-@layer base {
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground;
+
+  input, button {
+    @apply focus:outline-none;
   }
 }
 
+@layer components {
+  .card {
+    @apply bg-card text-card-foreground rounded-xl p-6 shadow-lg max-w-md w-full;
+  }
+
+  .input {
+    @apply w-full bg-input text-foreground px-4 py-2 rounded-md border border-border;
+  }
+
+  .btn {
+    @apply w-full text-white font-medium py-2 px-4 rounded-md bg-primary hover:opacity-90 transition;
+  }
+
+  .label {
+    @apply text-sm font-semibold mb-1;
+  }
+
+  .title {
+    @apply text-2xl font-bold text-foreground;
+  }
+
+  .subtitle {
+    @apply text-lg font-semibold text-foreground;
+  }
+
+  .logo-icon {
+    @apply w-10 h-10 bg-primary flex items-center justify-center rounded-lg text-white text-xl;
+  }
+}
 
 @layer utilities {
-  .print-only {
-    display: none;
-  }
-  @media print {
-    body, html {
-      background-color: #ffffff !important;
-      color: #000000 !important;
-    }
-    .no-print {
-      display: none !important;
-    }
-    .print-only {
-      display: block !important;
-    }
-    .print-receipt {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      margin: 0;
-      padding: 0.5rem;
-      border: none;
-      box-shadow: none;
-      color: #000000;
-      background-color: #ffffff;
-    }
-    .print-receipt * {
-      color: #000000 !important;
-      background-color: transparent !important;
-    }
+  .center-screen {
+    @apply flex items-center justify-center min-h-screen;
   }
 }

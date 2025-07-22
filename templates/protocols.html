@@ -3,7 +3,7 @@
 <h3>Select Transaction Protocol</h3>
 <form method="POST" action="{{ url_for('protocol') }}" class="form-wrap">
     <label for="protocol">Choose a protocol:</label><br>
-    <select name="protocol" required>
+    <select name="protocol" id="protocol" required>
         <optgroup label="Online Protocols">
             <option value="101.1">Online Sale 101.1 – 4-digit Auth Code</option>
             <option value="101.2">Online Purchase 101.2 – 6-digit Auth Code</option>

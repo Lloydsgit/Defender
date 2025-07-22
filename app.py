@@ -21,10 +21,13 @@ if not os.path.exists(PASSWORD_FILE):
         hashed = hashlib.sha256("Br_3339".encode()).hexdigest()
         json.dump({"password": hashed}, f)
 
-def check_password(raw):
-    with open(PASSWORD_FILE) as f:
-        stored = json.load(f)['password']
-    return hashlib.sha256(raw.encode()).hexdigest() == stored
+def check_password(password):
+    try:
+        with open('password.json') as f:
+            stored = json.load(f).get("password", "")
+        return hashlib.sha256(password.encode()).hexdigest() == stored
+    except:
+        return False
 
 def set_password(newpass):
     with open(PASSWORD_FILE, "w") as f:
@@ -204,12 +207,20 @@ def home():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        user = request.form.get('username')
-        passwd = request.form.get('password')
-        if user == USERNAME and check_password(passwd):
+        user = request.form.get('username', '').strip()
+        passwd = request.form.get('password', '').strip()
+
+        # Debug log (optional)
+        print("Entered user:", user)
+        print("Entered pass:", passwd)
+        print("Entered hash:", hashlib.sha256(passwd.encode()).hexdigest())
+
+        if user == 'blackrock' and check_password(passwd):
             session['logged_in'] = True
             return redirect(url_for('protocol'))
-        flash("Invalid username or password.")
+        else:
+            flash("Invalid username or password.")
+            return render_template('login.html')
     return render_template('login.html')
 
 @app.route('/logout')

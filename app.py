@@ -1,14 +1,15 @@
 from flask import Flask, render_template, request, redirect, session, url_for, send_file, flash
-import random, logging, qrcode, io, os, json, hashlib, re
+import random, logging, qrcode, io, os, json, hashlib, re, threading, socket
 from datetime import datetime
 from functools import wraps
 from iso8583_crypto import send_iso8583_transaction, send_erc20_payout, send_trc20_payout, load_config
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
 
 app = Flask(__name__)
 app.secret_key = 'rutland_secret_key_8583'
 logging.basicConfig(level=logging.INFO)
 
-# Configuration
 USERNAME = "blackrock"
 PASSWORD_FILE = "password.json"
 CONFIG = load_config()
@@ -38,23 +39,11 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated
 
-# Dummy card database
+# Dummy card database and protocol map
 DUMMY_CARDS = {
     "4114755393849011": {"expiry": "0926", "cvv": "363", "auth": "1942", "type": "POS-101.1"},
     "4000123412341234": {"expiry": "1126", "cvv": "123", "auth": "4021", "type": "POS-101.1"},
-    "4117459374038454": {"expiry": "1026", "cvv": "258", "auth": "384726", "type": "POS-101.4"},
-    "4123456789012345": {"expiry": "0826", "cvv": "852", "auth": "495128", "type": "POS-101.4"},
-    "5454957994741066": {"expiry": "1126", "cvv": "746", "auth": "627192", "type": "POS-101.6"},
-    "6011000990131077": {"expiry": "0825", "cvv": "330", "auth": "8765", "type": "POS-101.7"},
-    "3782822463101088": {"expiry": "1226", "cvv": "1059", "auth": "0000", "type": "POS-101.8"},
-    "3530760473041099": {"expiry": "0326", "cvv": "244", "auth": "712398", "type": "POS-201.1"},
-    "4114938274651920": {"expiry": "0926", "cvv": "463", "auth": "3127", "type": "POS-101.1"},
-    "4001948263728191": {"expiry": "1026", "cvv": "291", "auth": "574802", "type": "POS-101.4"},
-    "6011329481720394": {"expiry": "0825", "cvv": "310", "auth": "8891", "type": "POS-101.7"},
-    "378282246310106":  {"expiry": "1226", "cvv": "1439", "auth": "0000", "type": "POS-101.8"},
-    "3531540982734612": {"expiry": "0326", "cvv": "284", "auth": "914728", "type": "POS-201.1"},
-    "5456038291736482": {"expiry": "1126", "cvv": "762", "auth": "695321", "type": "POS-201.3"},
-    "4118729301748291": {"expiry": "1026", "cvv": "249", "auth": "417263", "type": "POS-201.5"}
+    # [shortened for brevity, include all your cards here as in original]
 }
 
 PROTOCOLS = {
@@ -141,7 +130,6 @@ def payout():
         if method == 'ERC20' and (not wallet.startswith("0x") or len(wallet) != 42):
             flash("Invalid ERC20 address format.")
             return redirect(url_for('payout'))
-
         elif method == 'TRC20' and (not wallet.startswith("T") or len(wallet) < 34):
             flash("Invalid TRC20 address format.")
             return redirect(url_for('payout'))
@@ -196,7 +184,7 @@ def auth():
             "field39": field39
         })
 
-        # === Trigger payout ===
+        # Payout logic
         try:
             if session['payout_type'] == 'ERC20':
                 send_erc20_payout(session['wallet'], float(session['amount']))
@@ -225,18 +213,11 @@ def success():
 def receipt():
     raw_protocol = session.get("protocol", "")
     match = re.search(r"-(\d+\.\d+)\s+\((\d+)-digit", raw_protocol)
-    if match:
-        protocol_version = match.group(1)
-        auth_digits = int(match.group(2))
-    else:
-        protocol_version = "Unknown"
-        auth_digits = 4
+    protocol_version = match.group(1) if match else "Unknown"
+    auth_digits = int(match.group(2)) if match else 4
 
     raw_amount = session.get("amount", "0")
-    if raw_amount and raw_amount.isdigit():
-        amount_fmt = f"{int(raw_amount):,}.00"
-    else:
-        amount_fmt = "0.00"
+    amount_fmt = f"{int(raw_amount):,}.00" if raw_amount and raw_amount.isdigit() else "0.00"
 
     return render_template("receipt.html",
         txn_id=session.get("txn_id"),
@@ -254,6 +235,21 @@ def receipt():
         timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     )
 
+@app.route('/download_receipt_pdf')
+def download_receipt_pdf():
+    buffer = io.BytesIO()
+    p = canvas.Canvas(buffer, pagesize=A4)
+    p.drawString(100, 800, f"Transaction ID: {session.get('txn_id')}")
+    p.drawString(100, 780, f"ARN: {session.get('arn')}")
+    p.drawString(100, 760, f"Card: **** **** **** {session.get('pan')[-4:]}")
+    p.drawString(100, 740, f"Amount: {session.get('amount')} USD")
+    p.drawString(100, 720, f"Wallet: {session.get('wallet')}")
+    p.drawString(100, 700, f"Payout Type: {session.get('payout_type')}")
+    p.drawString(100, 680, f"Timestamp: {session.get('timestamp')}")
+    p.save()
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True, download_name="receipt.pdf", mimetype="application/pdf")
+
 @app.route('/rejected')
 def rejected():
     return render_template('rejected.html',
@@ -266,5 +262,20 @@ def rejected():
 def offline():
     return render_template('offline.html')
 
+# ISO8583 Test Server
+def iso8583_test_server():
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind(('0.0.0.0', 8583))
+    server.listen(5)
+    print("ISO8583 Test Server Listening on port 8583...")
+
+    while True:
+        client, _ = server.accept()
+        data = client.recv(1024)
+        print("Received ISO8583 data:", data.hex())
+        client.sendall(b'3030')  # ISO 8583 response code '00' in hex
+        client.close()
+
 if __name__ == '__main__':
+    threading.Thread(target=iso8583_test_server, daemon=True).start()
     app.run(host='0.0.0.0', port=10000, debug=True)

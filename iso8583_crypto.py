@@ -13,7 +13,7 @@ from iso8583 import Iso8583, specs
 # -------------------------
 def send_iso8583_transaction(card_data, host='127.0.0.1', port=5001):
     """Sends an ISO8583 transaction to a specified TCP server"""
-    iso = iso8583.ISO8583()
+    iso = Iso8583()
     iso.setMTI('0200')
     iso.setBit(2, card_data.get('pan', '4000000000000002'))  # PAN
     iso.setBit(3, '000000')  # Processing Code

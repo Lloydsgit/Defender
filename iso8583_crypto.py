@@ -6,7 +6,7 @@ from datetime import datetime
 from web3 import Web3
 from tronpy import Tron
 from tronpy.keys import PrivateKey
-from iso8583 import iso8583
+from iso8583 import Iso8583, specs
 
 # -------------------------
 # ISO8583 send logic

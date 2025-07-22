@@ -14,6 +14,7 @@ logging.basicConfig(level=logging.INFO)
 USERNAME = "blackrock"
 DEFAULT_PASSWORD = "Br_3339"
 PASSWORD_FILE = "password.json"
+CONFIG_FILE = "config.json"
 
 # Ensure password file exists
 if not os.path.exists(PASSWORD_FILE):

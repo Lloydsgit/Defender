@@ -72,22 +72,6 @@ PROTOCOLS = {
     "POS Terminal -201.5 (6-digit approval)": 6
 }
 
-PROTOCOLS = {
-     "101.1": 4,
-    "101.2": 6,
-    "101.3": 6,
-    "101.4": 6,  
-    "101.5": 6,  
-    "101.6": 6,
-    "101.7": 4,
-    "101.8": 4,
-    "201.1": 6,
-    "201.2": 6,
-    "201.3": 6,
-    "201.4": 6,
-    "201.5": 6
-}
-
 FIELD_39_RESPONSES = {
     "05": "Do Not Honor",
     "14": "Terminal unable to resolve encrypted session state. Contact card issuer",

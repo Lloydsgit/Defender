@@ -245,7 +245,8 @@ def change_password():
 def protocol():
     if request.method == 'POST':
         selected = request.form.get('protocol', '').strip()
-        if selected not in PROTOCOLS:
+        if selected in PROTOCOLS:
+        else:
             return redirect(url_for('rejected', code="92", reason=FIELD_39_RESPONSES["92"]))
         session['protocol'] = selected
         session['code_length'] = PROTOCOLS[selected]

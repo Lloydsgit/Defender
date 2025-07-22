@@ -1,26 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="center-screen">
-  <div class="card">
-    <div class="flex items-center space-x-3 mb-6">
-      <div class="logo-icon">
-        <span>&gt;_</span>
-      </div>
-      <div>
-        <h1 class="title">Black Rock</h1>
-        <p class="subtitle -mt-1">Terminal Login</p>
-      </div>
-    </div>
-    <p class="mb-6 text-sm text-muted-foreground">Sign in to operate the payment terminal.</p>
-    <form method="post">
-      <label class="label" for="username">Username</label>
-      <input class="input mb-4" id="username" name="username" placeholder="Enter username" required />
-
-      <label class="label" for="password">Password</label>
-      <input class="input mb-6" id="password" name="password" type="password" placeholder="••••••••" required />
-
-      <button type="submit" class="btn">Sign In</button>
-    </form>
+<form method="post">
+  <div class="text-center mb-6">
+    <div class="text-3xl font-bold text-foreground">Terminal Login</div>
+    <p class="text-sm text-muted-foreground">Sign in to operate the payment terminal.</p>
   </div>
-</div>
+
+  <div class="mb-4">
+    <label class="label" for="username">Username</label>
+    <input class="input" id="username" name="username" placeholder="blackrock" required>
+  </div>
+
+  <div class="mb-6">
+    <label class="label" for="password">Password</label>
+    <input class="input" id="password" name="password" type="password" placeholder="••••••••" required>
+  </div>
+
+  <button type="submit" class="btn">Sign In</button>
+</form>
 {% endblock %}

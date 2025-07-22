@@ -250,7 +250,7 @@ def protocol():
         session['protocol'] = selected
         session['code_length'] = PROTOCOLS[selected]
         return redirect(url_for('amount'))
-    return render_template('protocol.html', protocols=PROTOCOLS.keys())
+    return render_template('protocols.html', protocols=PROTOCOLS.keys())
 
 @app.route('/amount', methods=['GET', 'POST'])
 @login_required

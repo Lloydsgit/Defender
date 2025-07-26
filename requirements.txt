@@ -10,3 +10,4 @@ twilio
 pycryptodome
 pyiso8583
 requests
+firebase_admin
